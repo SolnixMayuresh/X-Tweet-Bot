@@ -1,0 +1,1434 @@
+{
+  "name": "Tweet",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        512,
+        144
+      ],
+      "id": "ff6e3cf8-815b-447e-aaaf-57eef2c3567f",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        560,
+        496
+      ],
+      "id": "69de7757-4daa-42c0-b85d-24fa64eb1ded",
+      "name": "Embeddings Google Gemini2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "XmL39UYSkcOBxNHX",
+          "name": "Twitter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 200,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        720,
+        624
+      ],
+      "id": "8806fc36-7606-42c8-8e7e-e36fb8988b1f",
+      "name": "Recursive Character Text Splitter1"
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        848,
+        496
+      ],
+      "id": "ce3fd46a-6f9e-471b-9e55-aa14f63f7d1e",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1088,
+        240
+      ],
+      "id": "04690232-328f-4245-a1ad-ed3769ea65e7",
+      "name": "Wait1",
+      "webhookId": "b6eaf630-0943-4a0c-9c55-c7878c9cbd64"
+    },
+    {
+      "parameters": {
+        "content": "## Google Drive\n",
+        "height": 784,
+        "width": 1328
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "9c5c59b3-7622-400d-8d39-c1dba12a9056",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "description": "Reasoning Steps:\n\nAnalyze Industry: Look at the {{ $json.topic }} and identify the most expensive or time-consuming problem in that sector.\n\nBridge to Service: Match that problem to the specific services listed in the {{ $json.description }} (e.g., matching 'fraud' to 'fraud detection' in Finance).\n\nMaximize Scannability: Use short sentences and bullet points to ensure the tweet is readable on mobile devices.\n\nCall to Action: Ensure the link is the final, clear destination for the reader."
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        2480,
+        1040
+      ],
+      "id": "5af1412b-53cd-425f-b9a1-305b3e9813a5",
+      "name": "Think",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\"Write a 10/10 viral tweet for {{ $json.Topic }}.\n\nStrictly follow this structure:\n\n{{ $json.Topic }} + [Pain Point]: A hook about the industry frustration.\n\nThe Growth Pivot: Explain how Solnix Media helps you grow by replacing [Pain Point] with automated speed and 24/7 efficiency.\n\nServices: {{ $json['Topic description'] }}\n\nKey Benefits: (60% faster, 45% cost reduction, 90% accuracy, 24/7 availability, 90-day ROI, and SOC 2 security).\n\nLink: website: https://docs.solnixmedia.com/\"\n\n\n",
+        "options": {
+          "systemMessage": "You are a high-conversion B2B Growth Strategist for Solnix Media. Your mission is to show businesses that AI is not just a tool, but a growth engine.\n\nHow Solnix Media Drives Growth:\n\nDepartmental AI: Deploying 24+ specific agents (Sales, Marketing, HR) to handle high-volume tasks.\n\nEnd-to-End RPA: Streamlining operations to reduce costs by up to 35% and increase speed by 60%.\n\nScalable Infrastructure: Moving from manual bottlenecks to automated pipelines that handle 10x volume without new hires.\n\nStyle Guide: Focus on the \"Before vs. After\" transformation."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2480,
+        832
+      ],
+      "id": "ad6e8d4a-0fd2-40ae-9ad1-bba136400472",
+      "name": "AI Agent1",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2336,
+        1040
+      ],
+      "id": "66348d58-34e5-4fe1-ad7f-84af630d347b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "XmL39UYSkcOBxNHX",
+          "name": "Twitter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "twitter",
+          "mode": "list",
+          "cachedResultName": "twitter"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        720,
+        240
+      ],
+      "id": "6d511c2f-6062-48ef-ac76-199f431ce196",
+      "name": "Twitter",
+      "credentials": {
+        "pineconeApi": {
+          "id": "qzmqaP8izYXyuWyv",
+          "name": "Twitter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "\"This index stores deep-domain knowledge for Solnix Media, including technical specs for n8n automation, WhatsApp RAG chatbots using Gemini/Pinecone, and industry-specific pain points for sectors like Financial Services, E-commerce, and Manufacturing. It is optimized to provide the 'Why' behind AI automation to fuel high-performing marketing copy.\"\n",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "twitter",
+          "mode": "list",
+          "cachedResultName": "twitter"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        2624,
+        1040
+      ],
+      "id": "80afd264-9289-4c7b-8c2a-eda2d2b1a095",
+      "name": "twitter",
+      "credentials": {
+        "pineconeApi": {
+          "id": "qzmqaP8izYXyuWyv",
+          "name": "Twitter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        272,
+        1072
+      ],
+      "id": "5f66edd6-bdbb-4336-b1d3-fe15fb2e7791",
+      "name": "extract content from pdf"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  // 1. Get the messy text from the 'output' field\n  let rawText = item.json.output || \"\";\n\n  // 2. Clean it:\n  // - Removes (1/10), (2/10), etc.\n  // - Removes the literal strings '\\n \\n' or actual newlines\n  let cleaned = rawText\n    .replace(/\\(\\d+\\/\\d+\\)/g, '') // Removes the (number/number) part\n    .replace(/\\\\n/g, ' ')         // Removes literal backslash-n characters\n    .replace(/\\s+/g, ' ')         // Turns multiple spaces/newlines into one space\n    .trim();                      // Removes leading/trailing spaces\n\n  // 3. Save it to your 'text_cleaned' field\n  item.json.text_cleaned = cleaned;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3152,
+        368
+      ],
+      "id": "78052756-c5d0-4d1a-866d-6aed1a0308d8",
+      "name": "clean"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2384,
+        1216
+      ],
+      "id": "1cd1f653-edb5-4d83-b8fc-2903cc8cc2a8",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "XmL39UYSkcOBxNHX",
+          "name": "Twitter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1SDZ6H8OzBYwN4Tor_k_0y5PDREc7WOIc",
+          "mode": "list",
+          "cachedResultName": "_Industry-Specific Solutions.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/1SDZ6H8OzBYwN4Tor_k_0y5PDREc7WOIc/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        288,
+        144
+      ],
+      "id": "e64ca0f0-8c5a-4fd5-8164-12fdc0edce4f",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "ldikwwDN7iCcOeQS",
+          "name": "solnixmayuresh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input text from your previous step\nconst rawText = $input.first().json.text; \n\nconst parseData = (text) => {\n    // Split text into lines and remove empty ones\n    const lines = text.split('\\n').map(line => line.trim()).filter(line => line !== \"\");\n    \n    const result = [];\n    let currentTopic = \"\";\n    let currentDescriptions = [];\n\n    lines.forEach((line) => {\n        if (!line.startsWith('-')) {\n            // If we encounter a new topic, save the previous one first\n            if (currentTopic !== \"\") {\n                result.push({\n                    topic: currentTopic,\n                    description: currentDescriptions.join('\\n')\n                });\n            }\n            // Reset for the new topic\n            currentTopic = line;\n            currentDescriptions = [];\n        } else {\n            // Add the bullet point to the description list\n            currentDescriptions.push(line);\n        }\n    });\n\n    // Push the very last item in the list\n    if (currentTopic !== \"\") {\n        result.push({\n            topic: currentTopic,\n            description: currentDescriptions.join('\\n')\n        });\n    }\n\n    return result;\n};\n\n// This returns the array of objects directly\nreturn parseData(rawText);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        1072
+      ],
+      "id": "755844a9-2369-4284-b5bd-8821bb7065e9",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        944,
+        1072
+      ],
+      "id": "8ff1b183-66e1-4203-9cd6-15e975d1e906",
+      "name": "Wait",
+      "webhookId": "eb52e093-48db-47f7-b6df-1e48c76e7dbb"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "app1A00SBXuxVwjiw",
+          "mode": "list",
+          "cachedResultName": "Industry",
+          "cachedResultUrl": "https://airtable.com/app1A00SBXuxVwjiw"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblKm6nVzThAYcTyk",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/app1A00SBXuxVwjiw/tblKm6nVzThAYcTyk"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Topic": "={{ $json.topic }}",
+            "Topic description": "={{ $json.description }}"
+          },
+          "matchingColumns": [
+            "Topic"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Topic description",
+              "displayName": "Topic description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "used",
+                  "value": "used"
+                },
+                {
+                  "name": "to do",
+                  "value": "to do"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "tweet",
+              "displayName": "tweet",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "used date",
+              "displayName": "used date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        736,
+        1072
+      ],
+      "id": "f72ac647-6e84-48b8-abc0-787bffb36834",
+      "name": "Create or update a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "vCQsyQLF65lhymVZ",
+          "name": "Twitter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "app1A00SBXuxVwjiw",
+          "mode": "list",
+          "cachedResultName": "Industry",
+          "cachedResultUrl": "https://airtable.com/app1A00SBXuxVwjiw"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblKm6nVzThAYcTyk",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/app1A00SBXuxVwjiw/tblKm6nVzThAYcTyk"
+        },
+        "filterByFormula": "{status} = \"to do\"",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1760,
+        832
+      ],
+      "id": "45a878c3-f7a0-4f68-bafd-edeb5528f756",
+      "name": "Search records",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "vCQsyQLF65lhymVZ",
+          "name": "Twitter"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        832
+      ],
+      "id": "6754de1b-23fc-4686-af44-2ebfe176179b",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "app1A00SBXuxVwjiw",
+          "mode": "list",
+          "cachedResultName": "Industry",
+          "cachedResultUrl": "https://airtable.com/app1A00SBXuxVwjiw"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblKm6nVzThAYcTyk",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/app1A00SBXuxVwjiw/tblKm6nVzThAYcTyk"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "used",
+            "tweet": "={{ $json.text_cleaned }}",
+            "Topic": "={{ $('Search records').item.json.Topic }}"
+          },
+          "matchingColumns": [
+            "Topic"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Topic description",
+              "displayName": "Topic description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "used",
+                  "value": "used"
+                },
+                {
+                  "name": "to do",
+                  "value": "to do"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "tweet",
+              "displayName": "tweet",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "used date",
+              "displayName": "used date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        3360,
+        368
+      ],
+      "id": "5dff7a42-ffc7-4da4-b37e-dd451bb3d68f",
+      "name": "Update record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "vCQsyQLF65lhymVZ",
+          "name": "Twitter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Download file and Create Airtable",
+        "height": 672,
+        "width": 1904,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -576,
+        928
+      ],
+      "typeVersion": 1,
+      "id": "11518b6e-bcaa-4732-be8f-2d95268cad2a",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Search Record For Process",
+        "height": 288,
+        "width": 416
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1488,
+        736
+      ],
+      "typeVersion": 1,
+      "id": "ddd62a9c-a872-4257-8399-6314dfd826a9",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Process One by One",
+        "height": 288,
+        "width": 256
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1968,
+        736
+      ],
+      "typeVersion": 1,
+      "id": "4ed37448-0577-419c-95be-b85ead1a9e34",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Generate Tweet",
+        "height": 656,
+        "width": 592,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2288,
+        736
+      ],
+      "typeVersion": 1,
+      "id": "9da57103-71b3-4148-bab0-d857427fd324",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Clean And Update Airtable ",
+        "height": 272,
+        "width": 416
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3104,
+        272
+      ],
+      "typeVersion": 1,
+      "id": "5e9a9281-86f9-4ede-bb19-3d712ff09e40",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "description": "Reasoning Steps:\n\nAnalyze Industry: Look at the {{ $json.topic }} and identify the most expensive or time-consuming problem in that sector.\n\nBridge to Service: Match that problem to the specific services listed in the {{ $json.description }} (e.g., matching 'fraud' to 'fraud detection' in Finance).\n\nMaximize Scannability: Use short sentences and bullet points to ensure the tweet is readable on mobile devices.\n\nCall to Action: Ensure the link is the final, clear destination for the reader."
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        3264,
+        1344
+      ],
+      "id": "7413e271-7ba4-4a9b-9bf2-bf4537bc762b",
+      "name": "Think1",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\"Write a 10/10 viral tweet for {{ $json.Topic }}.\n\nStrictly follow this structure:\n\n{{ $json.Topic }} + [Pain Point]: A hook about the industry frustration.\n\nThe Growth Pivot: Explain how Solnix Media helps you grow by replacing [Pain Point] with automated speed and 24/7 efficiency.\n\nServices: {{ $json['Topic description'] }}\n\nKey Benefits: (60% faster, 45% cost reduction, 90% accuracy, 24/7 availability, 90-day ROI, and SOC 2 security).\n\nLink: website: https://docs.solnixmedia.com/\"\n\n\n",
+        "options": {
+          "systemMessage": "You are a high-conversion B2B Growth Strategist for Solnix Media. Your mission is to show businesses that AI is not just a tool, but a growth engine.\n\nHow Solnix Media Drives Growth:\n\nDepartmental AI: Deploying 24+ specific agents (Sales, Marketing, HR) to handle high-volume tasks.\n\nEnd-to-End RPA: Streamlining operations to reduce costs by up to 35% and increase speed by 60%.\n\nScalable Infrastructure: Moving from manual bottlenecks to automated pipelines that handle 10x volume without new hires.\n\nStyle Guide: Focus on the \"Before vs. After\" transformation."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        3264,
+        1136
+      ],
+      "id": "1598ff6f-9e2b-44fb-9cbf-aebf7665c77e",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        3120,
+        1344
+      ],
+      "id": "6335bac0-da58-4659-94ac-95f676a40a34",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "XmL39UYSkcOBxNHX",
+          "name": "Twitter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "\"This index stores deep-domain knowledge for Solnix Media, including technical specs for n8n automation, WhatsApp RAG chatbots using Gemini/Pinecone, and industry-specific pain points for sectors like Financial Services, E-commerce, and Manufacturing. It is optimized to provide the 'Why' behind AI automation to fuel high-performing marketing copy.\"\n",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "twitter",
+          "mode": "list",
+          "cachedResultName": "twitter"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        3408,
+        1344
+      ],
+      "id": "b3a9870c-5a01-4358-a33a-412f6cfd08e3",
+      "name": "twitter1",
+      "credentials": {
+        "pineconeApi": {
+          "id": "qzmqaP8izYXyuWyv",
+          "name": "Twitter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        3168,
+        1520
+      ],
+      "id": "c5e67540-2c7b-4632-a6cf-99f6c4e10d1b",
+      "name": "Embeddings Google Gemini1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "XmL39UYSkcOBxNHX",
+          "name": "Twitter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Generate Tweet Again if it fails ",
+        "height": 656,
+        "width": 592,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3072,
+        1040
+      ],
+      "typeVersion": 1,
+      "id": "ea282e88-7e9c-47bf-af02-89142db22e39",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Error in Ai Agent Node "
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        3856,
+        1280
+      ],
+      "id": "8ce52f90-aded-4e22-b3c7-f0a074d1b5d8",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        1552,
+        832
+      ],
+      "id": "34a0b5f8-a0e5-4454-9f74-91e0dfbea2ec",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "content": "## Error",
+        "height": 272,
+        "width": 256,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3776,
+        1184
+      ],
+      "typeVersion": 1,
+      "id": "68578aa6-0f41-4a2f-8b89-6d78531c346c",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5f2de507-dd2f-452a-8234-4535f82aae5d",
+              "leftValue": "={{ $binary.data.mimeType }}",
+              "rightValue": "application/pdf",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        32,
+        1088
+      ],
+      "id": "8ec76796-8b80-4734-9c53-be525330dfe1",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        288,
+        1280
+      ],
+      "id": "a1d2927a-3582-4240-954f-238bc1064ccd",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        544,
+        1264
+      ],
+      "id": "4c87a03b-48e2-4ed8-b101-c3b8cde5127e",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Download file1').item.json.id }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1p3pYFiq119qa9trOhTE3Fvq6d6xkfpHE",
+          "mode": "list",
+          "cachedResultName": "Done",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1p3pYFiq119qa9trOhTE3Fvq6d6xkfpHE"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1152,
+        1072
+      ],
+      "id": "dd6fb10e-f070-4f9b-81d7-bb151e37956b",
+      "name": "Move file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "ldikwwDN7iCcOeQS",
+          "name": "solnixmayuresh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $node[\"Google Drive Trigger\"].json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -224,
+        1088
+      ],
+      "id": "fda3e09b-2493-485a-a344-45cc4629394d",
+      "name": "Download file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "ldikwwDN7iCcOeQS",
+          "name": "solnixmayuresh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "11b0qgwhc7pyDtpChTmj_YOEPA7LEiQ0o",
+          "mode": "list",
+          "cachedResultName": "Twitter",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/11b0qgwhc7pyDtpChTmj_YOEPA7LEiQ0o"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        1088
+      ],
+      "id": "954e086b-918b-4290-b2cb-5186f094cf01",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "ldikwwDN7iCcOeQS",
+          "name": "solnixmayuresh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "11b0qgwhc7pyDtpChTmj_YOEPA7LEiQ0o",
+          "mode": "list",
+          "cachedResultName": "Twitter",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/11b0qgwhc7pyDtpChTmj_YOEPA7LEiQ0o"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        48,
+        144
+      ],
+      "id": "486af418-6cad-4114-917a-55ef73b808dd",
+      "name": "Trigger when files created",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "ldikwwDN7iCcOeQS",
+          "name": "solnixmayuresh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Upload Tweet",
+        "height": 272,
+        "width": 320,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3312,
+        656
+      ],
+      "typeVersion": 1,
+      "id": "538ffece-5a50-48c4-8092-54da34ebc504",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [
+        3424,
+        752
+      ],
+      "id": "b192d94a-de5c-47b6-b129-13be53cbbba2",
+      "name": "Create Tweet",
+      "credentials": {
+        "twitterOAuth2Api": {
+          "id": "8oLBZwYOiUbM7lGV",
+          "name": "Belikemayuresh"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Twitter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Twitter",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter1": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Twitter",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "clean",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twitter": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "twitter": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract content from pdf": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "clean": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Tweet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "twitter",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Create or update a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Move file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or update a record": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "twitter1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "twitter1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "clean",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "extract content from pdf",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger when files created": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "103b4164-5dbf-4029-b6f9-69249fecca32",
+  "meta": {
+    "instanceId": "b5dd658b4e783ec0f55029cd802254ce1031f79d99bb01f8a2f7c04204d465e6"
+  },
+  "id": "dUs5Nw0T0exrajhT0CKRP",
+  "tags": []
+}
